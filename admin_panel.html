@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - MegaPersonals Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            color: #333;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+        
+        .btn-copy {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.85em;
+        }
+        
+        .clients-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .clients-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #667eea;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .clients-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .clients-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-expired {
+            background: #d6d8db;
+            color: #383d41;
+        }
+        
+        .link-display {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .link-input {
+            flex: 1;
+            padding: 10px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: rgba(13, 202, 240, 0.2);
+            border-left: 4px solid #0dcaf0;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .clients-table {
+                font-size: 0.85em;
+            }
+            
+            .link-display {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Panel de Administración</h1>
+        
+        <div class="alert alert-info">
+            <strong>💡 Instrucciones:</strong> Crea un cliente y genera su link único. Comparte ese link con tu cliente para que vea el estado de su anuncio en tiempo real.
+        </div>
+        
+        <!-- Formulario para agregar cliente -->
+        <div class="card">
+            <h2>➕ Agregar Nuevo Cliente</h2>
+            <form id="addClientForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre del Cliente *</label>
+                        <input type="text" id="clientName" placeholder="Ej: Juan Pérez" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Navegador/Cuenta *</label>
+                        <select id="browserAccount" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="chrome-1">Chrome - Cuenta 1</option>
+                            <option value="chrome-2">Chrome - Cuenta 2</option>
+                            <option value="edge-1">Edge - Cuenta 1</option>
+                            <option value="firefox-1">Firefox - Cuenta 1</option>
+                            <option value="custom">Personalizado...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Duración (horas) *</label>
+                        <input type="number" id="duration" value="24" min="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Hora de Inicio *</label>
+                        <input type="datetime-local" id="startTime" required>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Notas (opcional)</label>
+                    <textarea id="notes" rows="2" placeholder="Información adicional sobre este cliente..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="margin-top: 15px;">
+                    ✅ Crear Cliente y Generar Link
+                </button>
+            </form>
+            
+            <div id="successMessage" class="success-message">
+                ✅ Cliente creado exitosamente!
+            </div>
+            
+            <div id="linkDisplay" class="link-display" style="display: none;">
+                <input type="text" id="generatedLink" class="link-input" readonly>
+                <button onclick="copyLink()" class="btn-copy">📋 Copiar</button>
+                <button onclick="openLink()" class="btn-primary" style="padding: 8px 15px; font-size: 0.85em;">
+                    🔗 Abrir
+                </button>
+            </div>
+        </div>
+        
+        <!-- Lista de clientes -->
+        <div class="card">
+            <h2>👥 Clientes Activos (<span id="clientCount">0</span>)</h2>
+            
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar cliente..." 
+                       style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0;"
+                       onkeyup="filterClients()">
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="clients-table" id="clientsTable">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Navegador</th>
+                            <th>Estado</th>
+                            <th>Próximo Bump</th>
+                            <th>Tiempo Restante</th>
+                            <th>Finaliza</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
+                                No hay clientes registrados
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const BUMP_INTERVAL = 15.25; // minutos
+        
+        // Establecer fecha/hora actual por defecto
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('startTime').value = now.toISOString().slice(0, 16);
+        
+        // Agregar cliente
+        document.getElementById('addClientForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const clientName = document.getElementById('clientName').value.trim();
+            const browserAccount = document.getElementById('browserAccount').value;
+            const duration = parseInt(document.getElementById('duration').value);
+            const startTime = new Date(document.getElementById('startTime').value).getTime();
+            const notes = document.getElementById('notes').value.trim();
+            
+            // Generar ID único
+            const clientId = 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Crear objeto de cliente
+            const client = {
+                id: clientId,
+                name: clientName,
+                browser: browserAccount,
+                duration: duration * 60, // convertir a minutos
+                startTime: startTime,
+                active: true,
+                lastBumpTime: startTime,
+                nextBumpTime: startTime + (BUMP_INTERVAL * 60 * 1000),
+                notes: notes,
+                createdAt: Date.now()
+            };
+            
+            // Guardar en localStorage
+            const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
+            allClients[clientId] = client;
+            localStorage.setItem('megapersonals_clients', JSON.stringify(allClients));
+            
+            // Generar link
+            const baseUrl = window.location.href.replace('admin-panel.html', 'client-dashboard.html');
+            const clientLink = `${baseUrl}?id=${clientId}`;
+            
+            // Mostrar link
+            document.getElementById('generatedLink').value = clientLink;
+            document.getElementById('linkDisplay').style.display = 'flex';
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Limpiar formulario
+            document.getElementById('addClientForm').reset();
+            document.getElementById('startTime').value = now.toISOString().slice(0, 16);
+            
+            // Actualizar tabla
+            updateClientsTable();
+            
+            // Ocultar mensaje después de 3 segundos
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 3000);
+        });
+        
+        // Copiar link
+        function copyLink() {
+            const linkInput = document.getElementById('generatedLink');
+            linkInput.select();
+            document.execCommand('copy');
+            
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Copiado!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+        
+        // Abrir link
+        function openLink() {
+            const link = document.getElementById('generatedLink').value;
+            window.open(link, '_blank');
+        }
+        
+        // Copiar link de cliente
+        function copyClientLink(clientId) {
+            const baseUrl = window.location.href.replace('admin-panel.html', 'client-dashboard.html');
+            const clientLink = `${baseUrl}?id=${clientId}`;
+            
+            const tempInput = document.createElement('input');
+            tempInput.value = clientLink;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            alert('✅ Link copiado al portapapeles');
+        }
+        
+        // Eliminar cliente
+        function deleteClient(clientId) {
+            if (confirm('¿Estás seguro de eliminar este cliente?')) {
+                const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
+                delete allClients[clientId];
+                localStorage.setItem('megapersonals_clients', JSON.stringify(allClients));
+                updateClientsTable();
+            }
+        }
+        
+        // Alternar estado
+        function toggleClient(clientId) {
+            const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
+            if (allClients[clientId]) {
+                allClients[clientId].active = !allClients[clientId].active;
+                localStorage.setItem('megapersonals_clients', JSON.stringify(allClients));
+                updateClientsTable();
+            }
+        }
+        
+        // Actualizar tabla de clientes
+        function updateClientsTable() {
+            const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
+            const clientsArray = Object.values(allClients);
+            const tbody = document.getElementById('clientsTableBody');
+            const now = Date.now();
+            
+            document.getElementById('clientCount').textContent = clientsArray.length;
+            
+            if (clientsArray.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
+                            No hay clientes registrados
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = clientsArray.map(client => {
+                const endTime = client.startTime + (client.duration * 60 * 1000);
+                const isExpired = now >= endTime;
+                const isActive = client.active && !isExpired;
+                
+                // Estado
+                let status, statusClass;
+                if (isExpired) {
+                    status = 'Expirado';
+                    statusClass = 'status-expired';
+                } else if (isActive) {
+                    status = 'Activo';
+                    statusClass = 'status-active';
+                } else {
+                    status = 'Pausado';
+                    statusClass = 'status-inactive';
+                }
+                
+                // Próximo bump
+                const timeToNextBump = Math.max(0, client.nextBumpTime - now);
+                const minutesToBump = Math.floor(timeToNextBump / 60000);
+                const nextBumpStr = isExpired ? 'Finalizado' : `${minutesToBump}m`;
+                
+                // Tiempo restante
+                const remaining = Math.max(0, endTime - now);
+                const hours = Math.floor(remaining / (60 * 60 * 1000));
+                const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+                const remainingStr = isExpired ? 'Expirado' : `${hours}h ${minutes}m`;
+                
+                // Fecha de finalización
+                const endDateStr = new Date(endTime).toLocaleString('es-ES', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                return `
+                    <tr>
+                        <td><strong>${client.name}</strong></td>
+                        <td>${client.browser}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>${nextBumpStr}</td>
+                        <td>${remainingStr}</td>
+                        <td>${endDateStr}</td>
+                        <td>
+                            <button onclick="copyClientLink('${client.id}')" class="btn-copy" style="margin-right: 5px;">
+                                📋
+                            </button>
+                            <button onclick="toggleClient('${client.id}')" class="btn-primary" 
+                                    style="padding: 6px 12px; font-size: 0.85em; margin-right: 5px;">
+                                ${isActive ? '⏸️' : '▶️'}
+                            </button>
+                            <button onclick="deleteClient('${client.id}')" class="btn-danger" 
+                                    style="padding: 6px 12px; font-size: 0.85em;">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Filtrar clientes
+        function filterClients() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#clientsTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+        
+        // Actualizar cada segundo
+        setInterval(updateClientsTable, 1000);
+        
+        // Inicializar
+        updateClientsTable();
+    </script>
+</body>
+</html>
