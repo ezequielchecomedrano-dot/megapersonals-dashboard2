@@ -299,7 +299,8 @@
     </div>
     
     <script>
-        const BUMP_INTERVAL = 15.25; // minutos
+        const BUMP_INTERVAL = 16; // minutos
+        const FIREBASE_URL = 'https://ezequielredd-default-rtdb.firebaseio.com';
         
         // Obtener ID del cliente desde la URL
         function getClientId() {
@@ -307,24 +308,29 @@
             return params.get('id');
         }
         
-        // Obtener datos del cliente
-        function getClientData() {
+        // Obtener datos del cliente desde Firebase
+        async function getClientData() {
             const clientId = getClientId();
             if (!clientId) {
                 showError();
                 return null;
             }
             
-            // Buscar en localStorage
-            const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
-            const clientData = allClients[clientId];
-            
-            if (!clientData) {
+            try {
+                const response = await fetch(`${FIREBASE_URL}/clients/${clientId}.json`);
+                const clientData = await response.json();
+                
+                if (!clientData) {
+                    showError();
+                    return null;
+                }
+                
+                return clientData;
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
                 showError();
                 return null;
             }
-            
-            return clientData;
         }
         
         // Mostrar error
@@ -334,11 +340,14 @@
         }
         
         // Actualizar dashboard
-        function updateDashboard() {
-            const data = getClientData();
+        async function updateDashboard() {
+            const data = await getClientData();
             if (!data) return;
             
             const now = Date.now();
+            
+            console.log('Datos recibidos:', data);
+            console.log('nextBumpTime:', data.nextBumpTime, 'now:', now, 'diff:', data.nextBumpTime - now);
             
             // Actualizar estado
             const statusElement = document.getElementById('statusIndicator');
@@ -360,21 +369,30 @@
                 statusText.textContent = '🔴 Pausado';
             }
             
-            // Próximo bump
-            if (!isExpired) {
-                const timeToNextBump = Math.max(0, data.nextBumpTime - now);
+            // Próximo bump - TIEMPO REAL desde Firebase
+            const timeToNextBump = data.nextBumpTime - now;
+            console.log('timeToNextBump:', timeToNextBump);
+            
+            if (!isExpired && timeToNextBump > 0) {
                 const minutes = Math.floor(timeToNextBump / 60000);
                 const seconds = Math.floor((timeToNextBump % 60000) / 1000);
+                
+                console.log('Minutos:', minutes, 'Segundos:', seconds);
                 
                 document.getElementById('nextBump').textContent = 
                     `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                 
                 const bumpTotal = BUMP_INTERVAL * 60 * 1000;
                 const bumpElapsed = bumpTotal - timeToNextBump;
-                const bumpProgress = Math.min(100, (bumpElapsed / bumpTotal) * 100);
+                const bumpProgress = Math.min(100, Math.max(0, (bumpElapsed / bumpTotal) * 100));
                 
                 document.getElementById('nextBumpBar').style.width = `${bumpProgress}%`;
                 document.getElementById('nextBumpPercent').textContent = `${Math.round(bumpProgress)}%`;
+            } else if (timeToNextBump <= 0 && !isExpired) {
+                // El tiempo pasó pero el servicio sigue activo - mostrar que está procesando
+                document.getElementById('nextBump').textContent = 'Procesando...';
+                document.getElementById('nextBumpBar').style.width = '100%';
+                document.getElementById('nextBumpPercent').textContent = '100%';
             } else {
                 document.getElementById('nextBump').textContent = 'Finalizado';
                 document.getElementById('nextBumpBar').style.width = '100%';
