@@ -218,17 +218,92 @@
         <h1>🔧 Panel de Administración</h1>
         
         <div class="alert alert-info">
-            <strong>💡 Instrucciones:</strong> Crea un cliente y genera su link único. Comparte ese link con tu cliente para que vea el estado de su anuncio en tiempo real.
+            <strong>💡 Instrucciones:</strong> 
+            1️⃣ Primero crea un CLIENTE (persona). 
+            2️⃣ Luego crea ANUNCIOS y asígnalos a ese cliente. 
+            3️⃣ Comparte el link del cliente para que vea todos sus anuncios.
         </div>
         
-        <!-- Formulario para agregar cliente -->
+        <!-- Formulario para crear CLIENTE (persona) -->
         <div class="card">
-            <h2>➕ Agregar Nuevo Cliente</h2>
-            <form id="addClientForm">
+            <h2>👤 Crear Nuevo Cliente</h2>
+            <form id="addPersonForm">
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Nombre del Cliente *</label>
-                        <input type="text" id="clientName" placeholder="Ej: Juan Pérez" required>
+                        <input type="text" id="personName" placeholder="Ej: María García" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono (opcional)</label>
+                        <input type="text" id="personPhone" placeholder="Ej: +1 234 567 8900">
+                    </div>
+                    <div class="form-group">
+                        <label>Notas (opcional)</label>
+                        <input type="text" id="personNotes" placeholder="Información adicional">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 15px;">
+                    👤 Crear Cliente
+                </button>
+            </form>
+            
+            <div id="personSuccessMessage" class="success-message" style="display: none;">
+                ✅ Cliente creado!
+            </div>
+            
+            <div id="personLinkDisplay" class="link-display" style="display: none;">
+                <input type="text" id="personGeneratedLink" class="link-input" readonly>
+                <button onclick="copyPersonLink()" class="btn-copy">📋 Copiar Link</button>
+                <button onclick="openPersonLink()" class="btn-primary" style="padding: 8px 15px; font-size: 0.85em;">
+                    🔗 Abrir
+                </button>
+            </div>
+        </div>
+        
+        <!-- Lista de clientes (personas) -->
+        <div class="card">
+            <h2>👥 Clientes (<span id="personCount">0</span>)</h2>
+            <div style="overflow-x: auto;">
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Anuncios</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="personsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Formulario para agregar ANUNCIO -->
+        <div class="card">
+            <h2>➕ Agregar Nuevo Anuncio</h2>
+            <form id="addClientForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Asignar a Cliente *</label>
+                        <select id="assignToClient" required>
+                            <option value="">Seleccionar cliente...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Nombre del Anuncio *</label>
+                        <input type="text" id="clientName" placeholder="Ej: Anuncio Birmingham" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Teléfono del Anuncio *</label>
+                        <input type="text" id="adPhone" placeholder="Ej: +1 205 308 7726" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ciudad *</label>
+                        <input type="text" id="adCity" placeholder="Ej: Birmingham, AL">
                     </div>
                     
                     <div class="form-group">
@@ -237,6 +312,9 @@
                             <option value="">Seleccionar...</option>
                             <option value="chrome-1">Chrome - Cuenta 1</option>
                             <option value="chrome-2">Chrome - Cuenta 2</option>
+                            <option value="chrome-3">Chrome - Cuenta 3</option>
+                            <option value="chrome-4">Chrome - Cuenta 4</option>
+                            <option value="chrome-5">Chrome - Cuenta 5</option>
                             <option value="edge-1">Edge - Cuenta 1</option>
                             <option value="firefox-1">Firefox - Cuenta 1</option>
                             <option value="custom">Personalizado...</option>
@@ -244,8 +322,21 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Duración (horas) *</label>
-                        <input type="number" id="duration" value="24" min="1" required>
+                        <label>Duración *</label>
+                        <div style="display: flex; gap: 10px;">
+                            <div style="flex: 1;">
+                                <input type="number" id="durationDays" value="0" min="0" placeholder="Días" style="width: 100%;">
+                                <small style="color: #666;">Días</small>
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="number" id="durationHours" value="24" min="0" max="23" placeholder="Horas" style="width: 100%;">
+                                <small style="color: #666;">Horas</small>
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="number" id="durationMinutes" value="0" min="0" max="59" placeholder="Min" style="width: 100%;">
+                                <small style="color: #666;">Minutos</small>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -256,25 +347,24 @@
                 
                 <div class="form-group" style="margin-top: 15px;">
                     <label>Notas (opcional)</label>
-                    <textarea id="notes" rows="2" placeholder="Información adicional sobre este cliente..."></textarea>
+                    <textarea id="notes" rows="2" placeholder="Información adicional sobre este anuncio..."></textarea>
                 </div>
                 
                 <button type="submit" class="btn-primary" style="margin-top: 15px;">
-                    ✅ Crear Cliente y Generar Link
+                    ✅ Crear Anuncio
                 </button>
             </form>
             
             <div id="successMessage" class="success-message">
-                ✅ Cliente creado exitosamente!
+                ✅ Anuncio creado exitosamente!
             </div>
             
             <div id="linkDisplay" class="link-display" style="display: none;">
+                <strong>ID del Anuncio (para content.js):</strong>
                 <input type="text" id="generatedLink" class="link-input" readonly>
                 <button onclick="copyLink()" class="btn-copy">📋 Copiar</button>
-                <button onclick="openLink()" class="btn-primary" style="padding: 8px 15px; font-size: 0.85em;">
-                    🔗 Abrir
-                </button>
             </div>
+        </div>
         </div>
         
         <!-- Lista de clientes -->
@@ -313,60 +403,363 @@
     </div>
     
     <script>
-        const BUMP_INTERVAL = 15.25; // minutos
+        const BUMP_INTERVAL = 15.42; // minutos
+        const FIREBASE_URL = 'https://ezequielredd-default-rtdb.firebaseio.com';
         
         // Establecer fecha/hora actual por defecto
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('startTime').value = now.toISOString().slice(0, 16);
         
-        // Agregar cliente
-        document.getElementById('addClientForm').addEventListener('submit', (e) => {
+        // ========== FUNCIONES PARA CLIENTES (PERSONAS) ==========
+        
+        // Guardar cliente (persona) en Firebase
+        async function savePersonToFirebase(personId, person) {
+            try {
+                const response = await fetch(`${FIREBASE_URL}/clientsInfo/${personId}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(person)
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Error al guardar persona:', error);
+                return false;
+            }
+        }
+        
+        // Obtener todos los clientes (personas) de Firebase
+        async function getPersonsFromFirebase() {
+            try {
+                const response = await fetch(`${FIREBASE_URL}/clientsInfo.json`);
+                const data = await response.json();
+                return data || {};
+            } catch (error) {
+                console.error('Error al obtener personas:', error);
+                return {};
+            }
+        }
+        
+        // Eliminar cliente (persona) de Firebase
+        async function deletePersonFromFirebase(personId) {
+            try {
+                await fetch(`${FIREBASE_URL}/clientsInfo/${personId}.json`, {
+                    method: 'DELETE'
+                });
+            } catch (error) {
+                console.error('Error al eliminar persona:', error);
+            }
+        }
+        
+        // Crear cliente (persona)
+        document.getElementById('addPersonForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const name = document.getElementById('personName').value.trim();
+            const phone = document.getElementById('personPhone').value.trim();
+            const notes = document.getElementById('personNotes').value.trim();
+            
+            const personId = 'person_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            const person = {
+                id: personId,
+                name: name,
+                phone: phone,
+                notes: notes,
+                createdAt: Date.now()
+            };
+            
+            await savePersonToFirebase(personId, person);
+            
+            // Generar link
+            const baseUrl = window.location.href.replace('admin-panel.html', 'client-multi-ads.html');
+            const personLink = `${baseUrl}?client=${personId}`;
+            
+            document.getElementById('personGeneratedLink').value = personLink;
+            document.getElementById('personLinkDisplay').style.display = 'flex';
+            document.getElementById('personSuccessMessage').style.display = 'block';
+            
+            document.getElementById('addPersonForm').reset();
+            
+            updatePersonsTable();
+            updateClientSelect();
+            
+            setTimeout(() => {
+                document.getElementById('personSuccessMessage').style.display = 'none';
+            }, 3000);
+        });
+        
+        // Copiar link de persona
+        function copyPersonLink() {
+            const linkInput = document.getElementById('personGeneratedLink');
+            linkInput.select();
+            document.execCommand('copy');
+            alert('✅ Link copiado!');
+        }
+        
+        // Abrir link de persona
+        function openPersonLink() {
+            const link = document.getElementById('personGeneratedLink').value;
+            window.open(link, '_blank');
+        }
+        
+        // Copiar link de persona desde tabla
+        function copyPersonLinkById(personId) {
+            const baseUrl = window.location.href.replace('admin-panel.html', 'client-multi-ads.html');
+            const link = `${baseUrl}?client=${personId}`;
+            
+            const tempInput = document.createElement('input');
+            tempInput.value = link;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            alert('✅ Link copiado!');
+        }
+        
+        // Eliminar persona
+        async function deletePerson(personId) {
+            if (confirm('¿Eliminar este cliente? Sus anuncios seguirán existiendo.')) {
+                await deletePersonFromFirebase(personId);
+                updatePersonsTable();
+                updateClientSelect();
+            }
+        }
+        
+        // Actualizar tabla de personas
+        async function updatePersonsTable() {
+            const persons = await getPersonsFromFirebase();
+            const ads = await getClientsFromFirebase();
+            const personsArray = Object.values(persons);
+            const tbody = document.getElementById('personsTableBody');
+            
+            document.getElementById('personCount').textContent = personsArray.length;
+            
+            if (personsArray.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 20px; color: #999;">
+                            No hay clientes registrados
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = personsArray.map(person => {
+                // Contar anuncios de este cliente
+                const personAds = Object.values(ads).filter(ad => ad.clientId === person.id);
+                const activeAds = personAds.filter(ad => {
+                    const endTime = ad.startTime + (ad.duration * 60 * 1000);
+                    return Date.now() < endTime && ad.active;
+                }).length;
+                
+                return `
+                    <tr>
+                        <td><strong>${person.name}</strong></td>
+                        <td>${person.phone || '-'}</td>
+                        <td>${personAds.length} (${activeAds} activos)</td>
+                        <td>
+                            <button onclick="copyPersonLinkById('${person.id}')" class="btn-copy" style="margin-right: 5px;" title="Copiar link">
+                                📋
+                            </button>
+                            <button onclick="deletePerson('${person.id}')" class="btn-danger" style="padding: 6px 12px; font-size: 0.85em;" title="Eliminar">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Actualizar select de clientes
+        async function updateClientSelect() {
+            const persons = await getPersonsFromFirebase();
+            const select = document.getElementById('assignToClient');
+            
+            select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+            
+            Object.values(persons).forEach(person => {
+                const option = document.createElement('option');
+                option.value = person.id;
+                option.textContent = person.name;
+                select.appendChild(option);
+            });
+        }
+        
+        // ========== FUNCIONES PARA ANUNCIOS ==========
+        
+        // Función para guardar anuncio en Firebase
+        async function saveClientToFirebase(clientId, client) {
+            try {
+                const response = await fetch(`${FIREBASE_URL}/clients/${clientId}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(client)
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Error al guardar en Firebase:', error);
+                return false;
+            }
+        }
+        
+        // Función para obtener todos los anuncios de Firebase
+        async function getClientsFromFirebase() {
+            try {
+                const response = await fetch(`${FIREBASE_URL}/clients.json`);
+                const data = await response.json();
+                return data || {};
+            } catch (error) {
+                console.error('Error al obtener de Firebase:', error);
+                return {};
+            }
+        }
+        
+        // Función para eliminar anuncio de Firebase
+        async function deleteClientFromFirebase(clientId) {
+            try {
+                await fetch(`${FIREBASE_URL}/clients/${clientId}.json`, {
+                    method: 'DELETE'
+                });
+            } catch (error) {
+                console.error('Error al eliminar de Firebase:', error);
+            }
+        }
+        
+        // Función para extender tiempo de un anuncio
+        async function extendClientTime(clientId) {
+            const allClients = await getClientsFromFirebase();
+            const client = allClients[clientId];
+            
+            if (!client) {
+                alert('Cliente no encontrado');
+                return;
+            }
+            
+            // Mostrar modal para ingresar tiempo adicional
+            const days = prompt('¿Cuántos días agregar?', '0');
+            if (days === null) return;
+            
+            const hours = prompt('¿Cuántas horas agregar?', '24');
+            if (hours === null) return;
+            
+            const minutes = prompt('¿Cuántos minutos agregar?', '0');
+            if (minutes === null) return;
+            
+            const additionalMinutes = (parseInt(days) * 24 * 60) + (parseInt(hours) * 60) + parseInt(minutes);
+            
+            if (additionalMinutes <= 0) {
+                alert('Por favor ingresa un tiempo válido');
+                return;
+            }
+            
+            // Calcular nuevo tiempo
+            const now = Date.now();
+            const currentEndTime = client.startTime + (client.duration * 60 * 1000);
+            const isExpired = now >= currentEndTime;
+            
+            let newStartTime, newDuration;
+            
+            if (isExpired) {
+                // Si expiró, empezar desde ahora
+                newStartTime = now;
+                newDuration = additionalMinutes;
+            } else {
+                // Si no expiró, agregar al tiempo existente
+                newStartTime = client.startTime;
+                newDuration = client.duration + additionalMinutes;
+            }
+            
+            // Actualizar cliente
+            const updates = {
+                startTime: newStartTime,
+                duration: newDuration,
+                active: true,
+                nextBumpTime: now + (BUMP_INTERVAL * 60 * 1000),
+                lastSync: now
+            };
+            
+            try {
+                await fetch(`${FIREBASE_URL}/clients/${clientId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+                
+                alert(`✅ Tiempo extendido: +${days}d ${hours}h ${minutes}m`);
+                updateClientsTable();
+            } catch (error) {
+                console.error('Error al extender tiempo:', error);
+                alert('Error al extender tiempo');
+            }
+        }
+        
+        // Agregar anuncio
+        document.getElementById('addClientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const assignToClient = document.getElementById('assignToClient').value;
             const clientName = document.getElementById('clientName').value.trim();
+            const adPhone = document.getElementById('adPhone').value.trim();
+            const adCity = document.getElementById('adCity').value.trim();
             const browserAccount = document.getElementById('browserAccount').value;
-            const duration = parseInt(document.getElementById('duration').value);
+            const days = parseInt(document.getElementById('durationDays').value) || 0;
+            const hours = parseInt(document.getElementById('durationHours').value) || 0;
+            const minutes = parseInt(document.getElementById('durationMinutes').value) || 0;
+            const totalMinutes = (days * 24 * 60) + (hours * 60) + minutes;
             const startTime = new Date(document.getElementById('startTime').value).getTime();
             const notes = document.getElementById('notes').value.trim();
             
-            // Generar ID único
-            const clientId = 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            if (!assignToClient) {
+                alert('Por favor selecciona un cliente');
+                return;
+            }
             
-            // Crear objeto de cliente
-            const client = {
-                id: clientId,
+            if (totalMinutes <= 0) {
+                alert('Por favor ingresa una duración válida');
+                return;
+            }
+            
+            // Generar ID único
+            const adId = 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Crear objeto de anuncio
+            const ad = {
+                id: adId,
+                clientId: assignToClient, // Asignar al cliente (persona)
                 name: clientName,
+                phone: adPhone,
+                city: adCity,
                 browser: browserAccount,
-                duration: duration * 60, // convertir a minutos
+                duration: totalMinutes,
                 startTime: startTime,
-                active: true,
+                active: false,
                 lastBumpTime: startTime,
                 nextBumpTime: startTime + (BUMP_INTERVAL * 60 * 1000),
                 notes: notes,
                 createdAt: Date.now()
             };
             
-            // Guardar en localStorage
-            const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
-            allClients[clientId] = client;
-            localStorage.setItem('megapersonals_clients', JSON.stringify(allClients));
+            // Guardar en Firebase
+            await saveClientToFirebase(adId, ad);
             
-            // Generar link
-            const baseUrl = window.location.href.replace('admin-panel.html', 'client-dashboard.html');
-            const clientLink = `${baseUrl}?id=${clientId}`;
-            
-            // Mostrar link
-            document.getElementById('generatedLink').value = clientLink;
+            // Mostrar ID del anuncio (para content.js)
+            document.getElementById('generatedLink').value = adId;
             document.getElementById('linkDisplay').style.display = 'flex';
             document.getElementById('successMessage').style.display = 'block';
             
             // Limpiar formulario
             document.getElementById('addClientForm').reset();
+            document.getElementById('durationDays').value = '0';
+            document.getElementById('durationHours').value = '24';
+            document.getElementById('durationMinutes').value = '0';
             document.getElementById('startTime').value = now.toISOString().slice(0, 16);
             
-            // Actualizar tabla
+            // Actualizar tablas
             updateClientsTable();
+            updatePersonsTable();
             
             // Ocultar mensaje después de 3 segundos
             setTimeout(() => {
@@ -410,28 +803,26 @@
         }
         
         // Eliminar cliente
-        function deleteClient(clientId) {
+        async function deleteClient(clientId) {
             if (confirm('¿Estás seguro de eliminar este cliente?')) {
-                const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
-                delete allClients[clientId];
-                localStorage.setItem('megapersonals_clients', JSON.stringify(allClients));
+                await deleteClientFromFirebase(clientId);
                 updateClientsTable();
             }
         }
         
         // Alternar estado
-        function toggleClient(clientId) {
-            const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
+        async function toggleClient(clientId) {
+            const allClients = await getClientsFromFirebase();
             if (allClients[clientId]) {
                 allClients[clientId].active = !allClients[clientId].active;
-                localStorage.setItem('megapersonals_clients', JSON.stringify(allClients));
+                await saveClientToFirebase(clientId, allClients[clientId]);
                 updateClientsTable();
             }
         }
         
         // Actualizar tabla de clientes
-        function updateClientsTable() {
-            const allClients = JSON.parse(localStorage.getItem('megapersonals_clients') || '{}');
+        async function updateClientsTable() {
+            const allClients = await getClientsFromFirebase();
             const clientsArray = Object.values(allClients);
             const tbody = document.getElementById('clientsTableBody');
             const now = Date.now();
@@ -474,9 +865,17 @@
                 
                 // Tiempo restante
                 const remaining = Math.max(0, endTime - now);
-                const hours = Math.floor(remaining / (60 * 60 * 1000));
+                const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
+                const hours = Math.floor((remaining % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
                 const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-                const remainingStr = isExpired ? 'Expirado' : `${hours}h ${minutes}m`;
+                let remainingStr;
+                if (isExpired) {
+                    remainingStr = 'Expirado';
+                } else if (days > 0) {
+                    remainingStr = `${days}d ${hours}h ${minutes}m`;
+                } else {
+                    remainingStr = `${hours}h ${minutes}m`;
+                }
                 
                 // Fecha de finalización
                 const endDateStr = new Date(endTime).toLocaleString('es-ES', {
@@ -495,15 +894,19 @@
                         <td>${remainingStr}</td>
                         <td>${endDateStr}</td>
                         <td>
-                            <button onclick="copyClientLink('${client.id}')" class="btn-copy" style="margin-right: 5px;">
+                            <button onclick="copyClientLink('${client.id}')" class="btn-copy" style="margin-right: 5px;" title="Copiar link">
                                 📋
                             </button>
+                            <button onclick="extendClientTime('${client.id}')" class="btn-primary" 
+                                    style="padding: 6px 12px; font-size: 0.85em; margin-right: 5px; background: linear-gradient(135deg, #f093fb, #f5576c);" title="Extender tiempo">
+                                ⏱️+
+                            </button>
                             <button onclick="toggleClient('${client.id}')" class="btn-primary" 
-                                    style="padding: 6px 12px; font-size: 0.85em; margin-right: 5px;">
+                                    style="padding: 6px 12px; font-size: 0.85em; margin-right: 5px;" title="${isActive ? 'Pausar' : 'Reanudar'}">
                                 ${isActive ? '⏸️' : '▶️'}
                             </button>
                             <button onclick="deleteClient('${client.id}')" class="btn-danger" 
-                                    style="padding: 6px 12px; font-size: 0.85em;">
+                                    style="padding: 6px 12px; font-size: 0.85em;" title="Eliminar">
                                 🗑️
                             </button>
                         </td>
@@ -523,11 +926,16 @@
             });
         }
         
-        // Actualizar cada segundo
-        setInterval(updateClientsTable, 1000);
+        // Actualizar cada 5 segundos (menos frecuente para no sobrecargar)
+        setInterval(() => {
+            updateClientsTable();
+            updatePersonsTable();
+        }, 5000);
         
         // Inicializar
         updateClientsTable();
+        updatePersonsTable();
+        updateClientSelect();
     </script>
 </body>
 </html>
