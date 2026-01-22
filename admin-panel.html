@@ -887,15 +887,19 @@
                 
                 return `
                     <tr>
-                        <td><strong>${client.name}</strong></td>
+                        <td><strong>${client.name}</strong><br><small style="color:#666;">📞 ${client.phone || 'Sin teléfono'}</small><br><small style="color:#999;">📍 ${client.city || 'Sin ciudad'}</small></td>
                         <td>${client.browser}</td>
                         <td><span class="status-badge ${statusClass}">${status}</span></td>
                         <td>${nextBumpStr}</td>
                         <td>${remainingStr}</td>
                         <td>${endDateStr}</td>
                         <td>
-                            <button onclick="copyClientLink('${client.id}')" class="btn-copy" style="margin-right: 5px;" title="Copiar link">
+                            <button onclick="copyClientLink('${client.id}')" class="btn-copy" style="margin-right: 5px;" title="Copiar ID">
                                 📋
+                            </button>
+                            <button onclick="editClient('${client.id}')" class="btn-primary" 
+                                    style="padding: 6px 12px; font-size: 0.85em; margin-right: 5px; background: linear-gradient(135deg, #3498db, #2980b9);" title="Editar">
+                                ✏️
                             </button>
                             <button onclick="extendClientTime('${client.id}')" class="btn-primary" 
                                     style="padding: 6px 12px; font-size: 0.85em; margin-right: 5px; background: linear-gradient(135deg, #f093fb, #f5576c);" title="Extender tiempo">
@@ -913,6 +917,48 @@
                     </tr>
                 `;
             }).join('');
+        }
+        
+        // Función para editar cliente (teléfono, ciudad, nombre)
+        async function editClient(clientId) {
+            const allClients = await getClientsFromFirebase();
+            const client = allClients[clientId];
+            
+            if (!client) {
+                alert('Anuncio no encontrado');
+                return;
+            }
+            
+            // Pedir nuevos datos
+            const newName = prompt('Nombre del anuncio:', client.name || '');
+            if (newName === null) return;
+            
+            const newPhone = prompt('Teléfono del anuncio:', client.phone || '');
+            if (newPhone === null) return;
+            
+            const newCity = prompt('Ciudad del anuncio:', client.city || '');
+            if (newCity === null) return;
+            
+            // Actualizar en Firebase
+            try {
+                const updates = {
+                    name: newName,
+                    phone: newPhone,
+                    city: newCity
+                };
+                
+                await fetch(`${FIREBASE_URL}/clients/${clientId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+                
+                alert('✅ Anuncio actualizado correctamente');
+                updateClientsTable();
+            } catch (error) {
+                console.error('Error al editar:', error);
+                alert('Error al actualizar el anuncio');
+            }
         }
         
         // Filtrar clientes
