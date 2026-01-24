@@ -396,6 +396,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(false)
                 });
+                // Forzar actualización inmediata
+                cachedData = null;
+                updateDashboard();
             } catch (error) {
                 console.error('Error al pausar:', error);
             }
@@ -414,6 +417,9 @@
                         lastSync: now
                     })
                 });
+                // Forzar actualización inmediata
+                cachedData = null;
+                updateDashboard();
             } catch (error) {
                 console.error('Error al reanudar:', error);
             }
@@ -539,9 +545,27 @@
             `;
         }
         
+        // Variables globales para cache de datos
+        let cachedData = null;
+        let lastFetchTime = 0;
+        const FETCH_INTERVAL = 5000; // Consultar Firebase cada 5 segundos
+        
+        // Obtener datos (con cache)
+        async function getDataWithCache() {
+            const now = Date.now();
+            
+            // Si pasaron más de 5 segundos, actualizar desde Firebase
+            if (!cachedData || (now - lastFetchTime) > FETCH_INTERVAL) {
+                cachedData = await getClientAds();
+                lastFetchTime = now;
+            }
+            
+            return cachedData;
+        }
+        
         // Actualizar dashboard
         async function updateDashboard() {
-            const data = await getClientAds();
+            const data = await getDataWithCache();
             if (!data) return;
             
             // Mostrar nombre del cliente
@@ -584,13 +608,19 @@
             container.innerHTML = data.ads.map(ad => renderAd(ad)).join('');
         }
         
+        // Forzar actualización desde Firebase (después de pausar/reanudar)
+        async function forceUpdate() {
+            cachedData = null;
+            await updateDashboard();
+        }
+        
         // Inicializar
         const clientId = getClientId();
         if (!clientId) {
             showError();
         } else {
             updateDashboard();
-            setInterval(updateDashboard, 1000);
+            setInterval(updateDashboard, 1000); // Actualizar contador cada segundo
         }
     </script>
 </body>
