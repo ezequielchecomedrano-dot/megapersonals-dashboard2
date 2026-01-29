@@ -1061,17 +1061,32 @@
                 const ad = await res.json();
                 
                 document.getElementById('editAdId').value = adId;
-                document.getElementById('editName').value = ad.adName || '';
+                
+                // Llenar campos con datos actuales (si existen)
+                document.getElementById('editName').value = ad.adName || ad.name || '';
                 document.getElementById('editHeadline').value = ad.adHeadline || '';
                 document.getElementById('editBody').value = ad.adBody || '';
                 document.getElementById('editLocation').value = ad.adLocation || '';
+                
+                // Mostrar placeholders si están vacíos
+                if (!ad.adName && !ad.name) {
+                    document.getElementById('editName').placeholder = 'Escribe el nombre (opcional)';
+                }
+                if (!ad.adHeadline) {
+                    document.getElementById('editHeadline').placeholder = 'Escribe el título (opcional)';
+                }
+                if (!ad.adBody) {
+                    document.getElementById('editBody').placeholder = 'Escribe el contenido del anuncio (opcional)';
+                }
                 
                 // Cargar estado y ciudad
                 if (ad.adState) {
                     document.getElementById('editState').value = ad.adState;
                     updateCities();
                     if (ad.city) {
-                        document.getElementById('editCity').value = ad.city;
+                        setTimeout(() => {
+                            document.getElementById('editCity').value = ad.city;
+                        }, 100);
                     }
                 }
                 
@@ -1285,6 +1300,7 @@
             let checkCount = 0;
             const maxChecks = 10; // 10 * 2 segundos = 20 segundos máximo
             let isWaitingToPublish = false;
+            let isPublishing = false;
             
             editStatusCheckInterval = setInterval(async () => {
                 try {
@@ -1293,10 +1309,23 @@
                     const res = await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`);
                     const data = await res.json();
                     
-                    // Si no hay datos, limpiar y mostrar error
+                    // Si no hay datos o fue borrado, verificar si el anuncio ya no tiene editStatus
                     if (!data) {
-                        clearInterval(editStatusCheckInterval);
-                        showEditResultWithRetry(adId);
+                        // Verificar si la edición se completó (editStatus fue limpiado)
+                        const adRes = await fetch(`${FIREBASE_URL}/clients/${adId}.json`);
+                        const adData = await adRes.json();
+                        
+                        if (!adData.editStatus) {
+                            clearInterval(editStatusCheckInterval);
+                            showEditResult(true, '¡Tu anuncio ha sido actualizado correctamente!');
+                            return;
+                        }
+                        
+                        // Si aún tiene editStatus pero no hay request, mostrar error
+                        if (checkCount >= maxChecks) {
+                            clearInterval(editStatusCheckInterval);
+                            showEditResultWithRetry(adId);
+                        }
                         return;
                     }
                     
@@ -1304,10 +1333,10 @@
                         clearInterval(editStatusCheckInterval);
                         showEditResult(true, '¡Tu anuncio ha sido actualizado correctamente!');
                         
-                        // Limpiar solicitud después de 5 segundos
+                        // Limpiar solicitud después de 2 segundos
                         setTimeout(async () => {
                             await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, { method: 'DELETE' });
-                        }, 5000);
+                        }, 2000);
                         return;
                     }
                     
@@ -1325,12 +1354,14 @@
                         const minutes = Math.floor(timeLeft / 60000);
                         const seconds = Math.floor((timeLeft % 60000) / 1000);
                         
-                        // Si el tiempo llegó a 0, seguir esperando el completed
+                        // Si el tiempo llegó a 0, mostrar "Publicando..."
                         if (timeLeft <= 0) {
+                            isPublishing = true;
                             document.getElementById('resultTitle').textContent = '🚀 Publicando...';
                             document.getElementById('editResult').innerHTML = `
                                 <div class="spinner"></div>
                                 <p>Publicando tu anuncio...</p>
+                                <p style="font-size: 0.8em; color: #999;">Esto tardará unos segundos.</p>
                             `;
                         } else {
                             document.getElementById('resultTitle').textContent = '⏳ Esperando...';
@@ -1348,7 +1379,7 @@
                     }
                     
                     // Si pasó mucho tiempo y NO está esperando publicar, mostrar opción de reintentar
-                    if (checkCount >= maxChecks && !isWaitingToPublish) {
+                    if (checkCount >= maxChecks && !isWaitingToPublish && !isPublishing) {
                         clearInterval(editStatusCheckInterval);
                         showEditResultWithRetry(adId);
                     }
