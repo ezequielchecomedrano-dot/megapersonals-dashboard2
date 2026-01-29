@@ -1088,10 +1088,29 @@
         }
         
         // Cerrar modal
-        function closeEditModal() {
+        async function closeEditModal() {
             document.getElementById('editModal').classList.remove('active');
             if (captchaCheckInterval) clearInterval(captchaCheckInterval);
             if (editStatusCheckInterval) clearInterval(editStatusCheckInterval);
+            
+            // Limpiar estado de editando si quedó colgado
+            if (currentEditAdId) {
+                try {
+                    const res = await fetch(`${FIREBASE_URL}/clients/${currentEditAdId}.json`);
+                    const data = await res.json();
+                    if (data && data.editStatus === 'editing') {
+                        await fetch(`${FIREBASE_URL}/clients/${currentEditAdId}.json`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ editStatus: null })
+                        });
+                        await fetch(`${FIREBASE_URL}/editRequests/${currentEditAdId}.json`, { method: 'DELETE' });
+                    }
+                } catch (e) {
+                    console.error('Error limpiando:', e);
+                }
+            }
+            
             currentEditAdId = null;
             cachedData = null;
             updateDashboard();
@@ -1328,9 +1347,21 @@
         }
         
         // Mostrar resultado con opción de reintentar
-        function showEditResultWithRetry(adId) {
+        async function showEditResultWithRetry(adId) {
             const resultDiv = document.getElementById('editResult');
             const resultTitle = document.getElementById('resultTitle');
+            
+            // Limpiar estado de editando automáticamente
+            try {
+                await fetch(`${FIREBASE_URL}/clients/${adId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ editStatus: null })
+                });
+                await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, { method: 'DELETE' });
+            } catch (e) {
+                console.error('Error limpiando estado:', e);
+            }
             
             resultTitle.textContent = '⚠️ Tiempo agotado';
             resultDiv.className = 'edit-status error';
@@ -1341,13 +1372,22 @@
                     • El código del captcha fue incorrecto<br>
                     • Hubo un problema de conexión
                 </p>
-                <button class="modal-btn" onclick="retryFromResult('${adId}')" style="margin-top: 15px; background: #ff6b6b;">
+                <button class="modal-btn" onclick="closeAndRetry('${adId}')" style="margin-top: 15px; background: #ff6b6b;">
                     🔄 Reintentar Edición
                 </button>
                 <button class="modal-btn" onclick="closeEditModal()" style="margin-top: 10px; background: #666;">
                     ❌ Cerrar
                 </button>
             `;
+        }
+        
+        // Cerrar y permitir reintentar
+        function closeAndRetry(adId) {
+            closeEditModal();
+            // Pequeña pausa y abrir de nuevo el modal
+            setTimeout(() => {
+                openEditModal(adId);
+            }, 500);
         }
         
         // Reintentar desde el resultado
