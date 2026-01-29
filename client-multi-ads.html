@@ -1298,30 +1298,38 @@
         // Verificar estado de la edición
         function startEditStatusCheck(adId) {
             let checkCount = 0;
-            const maxChecks = 10; // 10 * 2 segundos = 20 segundos máximo
+            const maxChecks = 15; // 15 * 2 segundos = 30 segundos máximo
             let isWaitingToPublish = false;
             let isPublishing = false;
             
             editStatusCheckInterval = setInterval(async () => {
                 try {
                     checkCount++;
+                    console.log('🔍 Verificando estado... intento', checkCount);
                     
+                    // Primero verificar el estado del anuncio (editStatus)
+                    const adRes = await fetch(`${FIREBASE_URL}/clients/${adId}.json`);
+                    const adData = await adRes.json();
+                    
+                    // Si editStatus fue limpiado, la edición se completó
+                    if (!adData || !adData.editStatus) {
+                        console.log('✅ editStatus limpiado - edición completada');
+                        clearInterval(editStatusCheckInterval);
+                        showEditResult(true, '¡Tu anuncio ha sido actualizado correctamente!');
+                        
+                        // Limpiar editRequest si existe
+                        try {
+                            await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, { method: 'DELETE' });
+                        } catch(e) {}
+                        return;
+                    }
+                    
+                    // Verificar editRequest
                     const res = await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`);
                     const data = await res.json();
                     
-                    // Si no hay datos o fue borrado, verificar si el anuncio ya no tiene editStatus
                     if (!data) {
-                        // Verificar si la edición se completó (editStatus fue limpiado)
-                        const adRes = await fetch(`${FIREBASE_URL}/clients/${adId}.json`);
-                        const adData = await adRes.json();
-                        
-                        if (!adData.editStatus) {
-                            clearInterval(editStatusCheckInterval);
-                            showEditResult(true, '¡Tu anuncio ha sido actualizado correctamente!');
-                            return;
-                        }
-                        
-                        // Si aún tiene editStatus pero no hay request, mostrar error
+                        // No hay request pero sí hay editStatus - seguir esperando un poco más
                         if (checkCount >= maxChecks) {
                             clearInterval(editStatusCheckInterval);
                             showEditResultWithRetry(adId);
@@ -1329,14 +1337,16 @@
                         return;
                     }
                     
+                    console.log('📦 Estado actual:', data.status);
+                    
                     if (data.status === 'completed') {
                         clearInterval(editStatusCheckInterval);
                         showEditResult(true, '¡Tu anuncio ha sido actualizado correctamente!');
                         
-                        // Limpiar solicitud después de 2 segundos
+                        // Limpiar solicitud
                         setTimeout(async () => {
                             await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, { method: 'DELETE' });
-                        }, 2000);
+                        }, 1000);
                         return;
                     }
                     
