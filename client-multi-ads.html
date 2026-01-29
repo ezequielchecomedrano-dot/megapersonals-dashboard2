@@ -489,7 +489,8 @@
         }
         
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 14px;
             border: 1px solid rgba(255,20,147,0.3);
@@ -498,6 +499,20 @@
             color: white;
             font-size: 1em;
             font-family: inherit;
+        }
+        
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23FF69B4' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+        }
+        
+        .form-group select option {
+            background: #1a0a1f;
+            color: white;
+            padding: 10px;
         }
         
         .form-group textarea {
@@ -749,13 +764,72 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>🏙️ Ciudad (City)</label>
-                    <input type="text" id="editCity" placeholder="Ej: Miami, FL">
+                    <label>🏙️ Estado</label>
+                    <select id="editState" onchange="updateCities()">
+                        <option value="">Selecciona un estado...</option>
+                        <option value="Alabama">Alabama</option>
+                        <option value="Alaska">Alaska</option>
+                        <option value="Arizona">Arizona</option>
+                        <option value="Arkansas">Arkansas</option>
+                        <option value="California">California</option>
+                        <option value="Colorado">Colorado</option>
+                        <option value="Connecticut">Connecticut</option>
+                        <option value="Delaware">Delaware</option>
+                        <option value="Florida">Florida</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Hawaii">Hawaii</option>
+                        <option value="Idaho">Idaho</option>
+                        <option value="Illinois">Illinois</option>
+                        <option value="Indiana">Indiana</option>
+                        <option value="Iowa">Iowa</option>
+                        <option value="Kansas">Kansas</option>
+                        <option value="Kentucky">Kentucky</option>
+                        <option value="Louisiana">Louisiana</option>
+                        <option value="Maine">Maine</option>
+                        <option value="Maryland">Maryland</option>
+                        <option value="Massachusetts">Massachusetts</option>
+                        <option value="Michigan">Michigan</option>
+                        <option value="Minnesota">Minnesota</option>
+                        <option value="Mississippi">Mississippi</option>
+                        <option value="Missouri">Missouri</option>
+                        <option value="Montana">Montana</option>
+                        <option value="Nebraska">Nebraska</option>
+                        <option value="Nevada">Nevada</option>
+                        <option value="New Hampshire">New Hampshire</option>
+                        <option value="New Jersey">New Jersey</option>
+                        <option value="New Mexico">New Mexico</option>
+                        <option value="New York">New York</option>
+                        <option value="North Carolina">North Carolina</option>
+                        <option value="North Dakota">North Dakota</option>
+                        <option value="Ohio">Ohio</option>
+                        <option value="Oklahoma">Oklahoma</option>
+                        <option value="Oregon">Oregon</option>
+                        <option value="Pennsylvania">Pennsylvania</option>
+                        <option value="Rhode Island">Rhode Island</option>
+                        <option value="South Carolina">South Carolina</option>
+                        <option value="South Dakota">South Dakota</option>
+                        <option value="Tennessee">Tennessee</option>
+                        <option value="Texas">Texas</option>
+                        <option value="Utah">Utah</option>
+                        <option value="Vermont">Vermont</option>
+                        <option value="Virginia">Virginia</option>
+                        <option value="Washington">Washington</option>
+                        <option value="West Virginia">West Virginia</option>
+                        <option value="Wisconsin">Wisconsin</option>
+                        <option value="Wyoming">Wyoming</option>
+                    </select>
                 </div>
                 
                 <div class="form-group">
-                    <label>📍 Ubicación (Location/Area)</label>
-                    <input type="text" id="editLocation" placeholder="Ej: Downtown Miami">
+                    <label>📍 Ciudad</label>
+                    <select id="editCity">
+                        <option value="">Primero selecciona un estado...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>🏠 Ubicación/Área (Location)</label>
+                    <input type="text" id="editLocation" placeholder="Ej: Downtown, Midtown, etc.">
                 </div>
                 
                 <button class="modal-btn" onclick="submitEditRequest()">
@@ -821,6 +895,79 @@
         let currentEditAdId = null;
         let captchaCheckInterval = null;
         let editStatusCheckInterval = null;
+        
+        // Ciudades por estado (MegaPersonals)
+        const citiesByState = {
+            "Alabama": ["Birmingham", "Huntsville", "Mobile", "Montgomery", "Tuscaloosa"],
+            "Alaska": ["Anchorage", "Fairbanks", "Juneau"],
+            "Arizona": ["Flagstaff", "Phoenix", "Prescott", "Sierra Vista", "Tucson", "Yuma"],
+            "Arkansas": ["Fayetteville", "Fort Smith", "Jonesboro", "Little Rock", "Texarkana"],
+            "California": ["Bakersfield", "Chico", "Fresno", "Humboldt", "Imperial County", "Inland Empire", "Long Beach", "Los Angeles", "Modesto", "Monterey Bay", "Orange County", "Palm Springs", "Sacramento", "San Diego", "San Francisco", "San Jose", "San Luis Obispo", "Santa Barbara", "Santa Maria", "Stockton", "Ventura", "Visalia"],
+            "Colorado": ["Boulder", "Colorado Springs", "Denver", "Fort Collins", "Grand Junction", "Pueblo"],
+            "Connecticut": ["Danbury", "Hartford", "New Haven", "Stamford", "Waterbury"],
+            "Delaware": ["Dover", "Wilmington"],
+            "Florida": ["Bradenton", "Daytona Beach", "Fort Lauderdale", "Fort Myers", "Gainesville", "Jacksonville", "Keys", "Lakeland", "Melbourne", "Miami", "Ocala", "Orlando", "Panama City", "Pensacola", "Sarasota", "Space Coast", "St Augustine", "Tallahassee", "Tampa", "Treasure Coast", "West Palm Beach"],
+            "Georgia": ["Albany", "Athens", "Atlanta", "Augusta", "Columbus", "Macon", "Savannah", "Valdosta"],
+            "Hawaii": ["Hawaii", "Honolulu", "Maui"],
+            "Idaho": ["Boise", "Idaho Falls", "Lewiston", "Twin Falls"],
+            "Illinois": ["Bloomington", "Carbondale", "Champaign", "Chicago", "Decatur", "Peoria", "Rockford", "Springfield", "St Louis"],
+            "Indiana": ["Bloomington", "Evansville", "Fort Wayne", "Gary", "Indianapolis", "Kokomo", "Lafayette", "Muncie", "South Bend", "Terre Haute"],
+            "Iowa": ["Ames", "Cedar Rapids", "Des Moines", "Dubuque", "Iowa City", "Quad Cities", "Sioux City", "Waterloo"],
+            "Kansas": ["Kansas City", "Lawrence", "Manhattan", "Salina", "Topeka", "Wichita"],
+            "Kentucky": ["Bowling Green", "Lexington", "Louisville", "Owensboro"],
+            "Louisiana": ["Alexandria", "Baton Rouge", "Houma", "Lafayette", "Lake Charles", "Monroe", "New Orleans", "Shreveport"],
+            "Maine": ["Bangor", "Portland"],
+            "Maryland": ["Annapolis", "Baltimore", "Frederick", "Ocean City", "Salisbury"],
+            "Massachusetts": ["Boston", "Cape Cod", "South Coast", "Springfield", "Worcester"],
+            "Michigan": ["Ann Arbor", "Battle Creek", "Detroit", "Flint", "Grand Rapids", "Holland", "Jackson", "Kalamazoo", "Lansing", "Muskegon", "Port Huron", "Saginaw", "Upper Peninsula"],
+            "Minnesota": ["Duluth", "Mankato", "Minneapolis", "Rochester", "St Cloud"],
+            "Mississippi": ["Gulfport", "Hattiesburg", "Jackson", "Meridian", "North Mississippi", "Southwest Mississippi"],
+            "Missouri": ["Columbia", "Jefferson City", "Joplin", "Kansas City", "Kirksville", "Lake of the Ozarks", "Southeast Missouri", "Springfield", "St Joseph", "St Louis"],
+            "Montana": ["Billings", "Bozeman", "Butte", "Great Falls", "Helena", "Kalispell", "Missoula"],
+            "Nebraska": ["Grand Island", "Lincoln", "Omaha", "Scottsbluff"],
+            "Nevada": ["Elko", "Las Vegas", "Reno"],
+            "New Hampshire": ["Concord", "Manchester", "Nashua", "Portsmouth"],
+            "New Jersey": ["Atlantic City", "Central Jersey", "Jersey Shore", "North Jersey", "South Jersey"],
+            "New Mexico": ["Albuquerque", "Clovis", "Farmington", "Las Cruces", "Roswell", "Santa Fe"],
+            "New York": ["Albany", "Binghamton", "Buffalo", "Catskills", "Elmira", "Finger Lakes", "Glens Falls", "Hudson Valley", "Ithaca", "Long Island", "New York City", "Oneonta", "Plattsburgh", "Potsdam", "Rochester", "Syracuse", "Utica", "Watertown"],
+            "North Carolina": ["Asheville", "Boone", "Charlotte", "Eastern NC", "Fayetteville", "Greensboro", "Hickory", "Jacksonville", "Outer Banks", "Raleigh", "Wilmington", "Winston-Salem"],
+            "North Dakota": ["Bismarck", "Fargo", "Grand Forks", "Minot"],
+            "Ohio": ["Akron", "Canton", "Chillicothe", "Cincinnati", "Cleveland", "Columbus", "Dayton", "Lima", "Mansfield", "Sandusky", "Toledo", "Youngstown", "Zanesville"],
+            "Oklahoma": ["Lawton", "Oklahoma City", "Stillwater", "Tulsa"],
+            "Oregon": ["Bend", "Corvallis", "Eugene", "Klamath Falls", "Medford", "Portland", "Roseburg", "Salem"],
+            "Pennsylvania": ["Allentown", "Altoona", "Erie", "Harrisburg", "Lancaster", "Philadelphia", "Pittsburgh", "Poconos", "Reading", "Scranton", "State College", "Williamsport", "York"],
+            "Rhode Island": ["Providence"],
+            "South Carolina": ["Charleston", "Columbia", "Florence", "Greenville", "Hilton Head", "Myrtle Beach"],
+            "South Dakota": ["Pierre", "Rapid City", "Sioux Falls"],
+            "Tennessee": ["Chattanooga", "Clarksville", "Cookeville", "Johnson City", "Knoxville", "Memphis", "Nashville", "Tri-Cities"],
+            "Texas": ["Abilene", "Amarillo", "Austin", "Beaumont", "Brownsville", "College Station", "Corpus Christi", "Dallas", "Del Rio", "El Paso", "Fort Worth", "Galveston", "Houston", "Killeen", "Laredo", "Lubbock", "McAllen", "Midland", "Odessa", "San Angelo", "San Antonio", "San Marcos", "Texarkana", "Tyler", "Victoria", "Waco", "Wichita Falls"],
+            "Utah": ["Logan", "Ogden", "Provo", "Salt Lake City", "St George"],
+            "Vermont": ["Burlington"],
+            "Virginia": ["Charlottesville", "Danville", "Fredericksburg", "Hampton Roads", "Harrisonburg", "Lynchburg", "New River Valley", "Northern Virginia", "Richmond", "Roanoke", "Winchester"],
+            "Washington": ["Bellingham", "Kennewick", "Moses Lake", "Olympia", "Seattle", "Spokane", "Tacoma", "Wenatchee", "Yakima"],
+            "West Virginia": ["Charleston", "Eastern Panhandle", "Huntington", "Morgantown", "Parkersburg", "Southern WV", "Wheeling"],
+            "Wisconsin": ["Appleton", "Eau Claire", "Green Bay", "Janesville", "Kenosha", "La Crosse", "Madison", "Milwaukee", "Racine", "Sheboygan", "Wausau"],
+            "Wyoming": ["Casper", "Cheyenne", "Laramie"]
+        };
+        
+        // Actualizar ciudades cuando se selecciona un estado
+        function updateCities() {
+            const stateSelect = document.getElementById('editState');
+            const citySelect = document.getElementById('editCity');
+            const selectedState = stateSelect.value;
+            
+            // Limpiar ciudades
+            citySelect.innerHTML = '<option value="">Selecciona una ciudad...</option>';
+            
+            if (selectedState && citiesByState[selectedState]) {
+                citiesByState[selectedState].forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            }
+        }
         
         // Obtener ID del cliente de la URL
         function getClientId() {
@@ -914,8 +1061,16 @@
                 document.getElementById('editName').value = ad.adName || '';
                 document.getElementById('editHeadline').value = ad.adHeadline || '';
                 document.getElementById('editBody').value = ad.adBody || '';
-                document.getElementById('editCity').value = ad.city || '';
                 document.getElementById('editLocation').value = ad.adLocation || '';
+                
+                // Cargar estado y ciudad
+                if (ad.adState) {
+                    document.getElementById('editState').value = ad.adState;
+                    updateCities();
+                    if (ad.city) {
+                        document.getElementById('editCity').value = ad.city;
+                    }
+                }
                 
                 // Mostrar paso 1
                 document.getElementById('editStep1').style.display = 'block';
@@ -942,12 +1097,20 @@
         // Enviar solicitud de edición
         async function submitEditRequest() {
             const adId = document.getElementById('editAdId').value;
+            const state = document.getElementById('editState').value;
+            const city = document.getElementById('editCity').value;
+            
+            if (!state || !city) {
+                alert('Por favor selecciona un estado y una ciudad');
+                return;
+            }
             
             const editData = {
                 adName: document.getElementById('editName').value.trim(),
                 adHeadline: document.getElementById('editHeadline').value.trim(),
                 adBody: document.getElementById('editBody').value.trim(),
-                city: document.getElementById('editCity').value.trim(),
+                adState: state,
+                city: city,
                 adLocation: document.getElementById('editLocation').value.trim()
             };
             
