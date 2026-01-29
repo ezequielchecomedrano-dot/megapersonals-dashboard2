@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Anuncios - MegaPersonals</title>
+    <title>Mi Panel de Anuncios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
@@ -15,121 +14,234 @@
         
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            background: linear-gradient(135deg, #1a0a1f 0%, #2d1f3d 50%, #1a0a1f 100%);
             color: white;
+            overflow-x: hidden;
+        }
+        
+        /* Fondo con burbujas animadas */
+        .bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255,20,147,0.3), rgba(153,50,204,0.3));
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .bubble:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 60px; height: 60px; left: 30%; animation-delay: 2s; }
+        .bubble:nth-child(3) { width: 100px; height: 100px; left: 50%; animation-delay: 4s; }
+        .bubble:nth-child(4) { width: 40px; height: 40px; left: 70%; animation-delay: 6s; }
+        .bubble:nth-child(5) { width: 70px; height: 70px; left: 85%; animation-delay: 8s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
         
         .container {
-            max-width: 800px;
+            max-width: 500px;
             margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
         }
         
-        .logo {
+        /* Header con imagen de mujer */
+        .header {
             text-align: center;
-            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: linear-gradient(180deg, rgba(255,20,147,0.2) 0%, transparent 100%);
+            border-radius: 0 0 50px 50px;
+            margin-bottom: 20px;
+            position: relative;
         }
         
-        .logo h1 {
-            font-size: 1.8em;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            margin-bottom: 10px;
+        .header-image {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF1493, #9932CC);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(255,20,147,0.5);
+            position: relative;
+            overflow: hidden;
         }
         
-        .logo p {
+        .header-image svg {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .header-glow {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255,20,147,0.4) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        }
+        
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 700;
+            background: linear-gradient(90deg, #FF69B4, #FF1493, #DA70D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+        
+        .header .subtitle {
+            color: #DA70D6;
             font-size: 0.9em;
             opacity: 0.9;
         }
         
-        .client-name {
-            text-align: center;
-            font-size: 1.3em;
+        /* Info del cliente */
+        .client-info {
+            background: linear-gradient(135deg, rgba(255,20,147,0.15), rgba(153,50,204,0.15));
+            border: 1px solid rgba(255,20,147,0.3);
+            border-radius: 20px;
+            padding: 20px;
             margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 15px;
             backdrop-filter: blur(10px);
         }
         
-        .ads-count {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            opacity: 0.9;
+        .client-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #FF69B4;
+            margin-bottom: 5px;
         }
         
+        .client-stats {
+            color: #DA70D6;
+            font-size: 0.85em;
+        }
+        
+        /* Tarjetas de anuncios */
         .ad-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(45,31,61,0.9), rgba(26,10,31,0.9));
+            border: 1px solid rgba(255,20,147,0.2);
+            border-radius: 25px;
             padding: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            color: #333;
             margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .ad-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(255,20,147,0.2);
+            border-color: rgba(255,20,147,0.4);
+        }
+        
+        .ad-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF1493, #9932CC, #FF1493);
         }
         
         .ad-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
         }
         
-        .ad-title {
-            font-size: 1.2em;
+        .ad-phone {
+            font-size: 1.4em;
             font-weight: 700;
-            color: #333;
+            color: #FF69B4;
         }
         
-        .ad-browser {
-            font-size: 0.85em;
-            color: #666;
-            background: #f0f0f0;
-            padding: 5px 12px;
-            border-radius: 20px;
+        .ad-city {
+            color: #DA70D6;
+            font-size: 0.9em;
+            margin-top: 3px;
         }
         
         .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
             padding: 8px 16px;
             border-radius: 25px;
+            font-size: 0.8em;
             font-weight: 600;
-            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         
         .status-active {
-            background: linear-gradient(135deg, #00d4aa, #00b894);
-            color: white;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #003d20;
         }
         
         .status-paused {
-            background: linear-gradient(135deg, #ff9500, #ff6b00);
-            color: white;
+            background: linear-gradient(135deg, #ffa500, #ff8c00);
+            color: #4d3200;
         }
         
         .status-expired {
-            background: linear-gradient(135deg, #636e72, #2d3436);
+            background: linear-gradient(135deg, #666, #444);
+            color: #ccc;
+        }
+        
+        .status-editing {
+            background: linear-gradient(135deg, #9932CC, #663399);
             color: white;
+            animation: pulse-edit 1s infinite;
+        }
+        
+        @keyframes pulse-edit {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: white;
-            animation: pulse 2s infinite;
+            background: currentColor;
+            animation: blink 1s infinite;
         }
         
-        @keyframes pulse {
+        @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
         
-        .ad-stats {
+        /* Stats boxes */
+        .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
@@ -137,83 +249,94 @@
         }
         
         .stat-box {
-            background: #f8f9fa;
+            background: rgba(255,20,147,0.1);
+            border: 1px solid rgba(255,20,147,0.2);
+            border-radius: 15px;
             padding: 15px;
-            border-radius: 12px;
             text-align: center;
         }
         
         .stat-label {
-            font-size: 0.8em;
-            color: #666;
-            margin-bottom: 5px;
+            color: #DA70D6;
+            font-size: 0.75em;
+            margin-bottom: 8px;
         }
         
         .stat-value {
             font-size: 1.5em;
             font-weight: 700;
-            color: #667eea;
+            color: white;
         }
         
         .stat-value.time {
             font-family: 'Courier New', monospace;
+            background: linear-gradient(90deg, #FF69B4, #FF1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
+        /* Progress bar */
         .progress-container {
-            height: 8px;
-            background: #e9ecef;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
             border-radius: 10px;
+            margin-top: 10px;
             overflow: hidden;
-            margin-top: 8px;
         }
         
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #FF1493, #9932CC);
             border-radius: 10px;
             transition: width 0.3s ease;
         }
         
+        /* Detalles adicionales */
         .ad-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 0.85em;
-            color: #666;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
+            background: rgba(0,0,0,0.2);
             border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
         
-        .detail-item {
+        .detail-row {
             display: flex;
             justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
         }
         
         .detail-label {
             color: #999;
+            font-size: 0.85em;
         }
         
         .detail-value {
+            color: #DA70D6;
+            font-size: 0.85em;
             font-weight: 600;
-            color: #333;
         }
         
-        .ad-controls {
-            display: flex;
+        /* Botones */
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
         
         .btn {
-            flex: 1;
             padding: 14px 20px;
             border: none;
-            border-radius: 12px;
-            font-size: 1em;
+            border-radius: 15px;
+            font-size: 0.9em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -221,171 +344,526 @@
         }
         
         .btn-pause {
-            background: linear-gradient(135deg, #ff9500, #ff6b00);
+            background: linear-gradient(135deg, #ffa500, #ff6b00);
             color: white;
+        }
+        
+        .btn-pause:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(255,165,0,0.4);
         }
         
         .btn-resume {
-            background: linear-gradient(135deg, #00d4aa, #00b894);
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #003d20;
+        }
+        
+        .btn-resume:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+        }
+        
+        .btn-edit {
+            background: linear-gradient(135deg, #9932CC, #663399);
             color: white;
         }
         
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        .btn-edit:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(153,50,204,0.4);
         }
         
-        .btn:disabled {
-            opacity: 0.6;
+        .btn-disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+        
+        .btn-full {
+            grid-column: 1 / -1;
+        }
+        
+        /* No ads message */
+        .no-ads {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(145deg, rgba(45,31,61,0.5), rgba(26,10,31,0.5));
+            border-radius: 25px;
+            border: 1px dashed rgba(255,20,147,0.3);
+        }
+        
+        .no-ads-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .no-ads h3 {
+            color: #FF69B4;
+            margin-bottom: 10px;
+        }
+        
+        .no-ads p {
+            color: #999;
+        }
+        
+        /* Error message */
+        .error-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .error-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .error-container h2 {
+            color: #FF69B4;
+            margin-bottom: 10px;
+        }
+        
+        /* Modal para editar */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: linear-gradient(145deg, #2d1f3d, #1a0a1f);
+            border: 1px solid rgba(255,20,147,0.3);
+            border-radius: 25px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal h3 {
+            color: #FF69B4;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .modal-close:hover {
+            color: #FF69B4;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #DA70D6;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid rgba(255,20,147,0.3);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FF1493;
+            box-shadow: 0 0 10px rgba(255,20,147,0.3);
+        }
+        
+        .modal-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #FF1493, #9932CC);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .modal-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(255,20,147,0.4);
+        }
+        
+        .modal-btn:disabled {
+            background: #444;
             cursor: not-allowed;
             transform: none;
         }
         
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
+        /* Captcha section */
+        .captcha-section {
+            background: rgba(255,20,147,0.1);
+            border: 2px dashed rgba(255,20,147,0.4);
             border-radius: 15px;
-            backdrop-filter: blur(10px);
-            font-size: 0.9em;
-        }
-        
-        .refresh-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #00ff88;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-        
-        .error-message {
-            background: rgba(255, 107, 107, 0.9);
-            color: white;
             padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .no-ads {
-            background: rgba(255, 255, 255, 0.95);
-            color: #666;
-            padding: 40px;
-            border-radius: 20px;
+            margin: 20px 0;
             text-align: center;
         }
         
-        .no-ads-icon {
-            font-size: 4em;
+        .captcha-section h4 {
+            color: #FF69B4;
             margin-bottom: 15px;
         }
         
-        @media (max-width: 600px) {
-            .ad-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .ad-details {
-                grid-template-columns: 1fr;
-            }
-            
-            .ad-header {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
+        .captcha-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .captcha-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            text-align: center;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+        
+        .captcha-waiting {
+            color: #DA70D6;
+            padding: 30px;
+        }
+        
+        .captcha-waiting .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,20,147,0.2);
+            border-top-color: #FF1493;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Edit status messages */
+        .edit-status {
+            background: rgba(153,50,204,0.2);
+            border: 1px solid rgba(153,50,204,0.4);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .edit-status.success {
+            background: rgba(0,255,136,0.2);
+            border-color: rgba(0,255,136,0.4);
+        }
+        
+        .edit-status.error {
+            background: rgba(255,0,0,0.2);
+            border-color: rgba(255,0,0,0.4);
+        }
+        
+        .edit-status h4 {
+            margin-bottom: 10px;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.8em;
+        }
+        
+        .footer a {
+            color: #FF69B4;
+            text-decoration: none;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,20,147,0.2);
+            border-top-color: #FF1493;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        /* Step indicator */
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            color: #666;
+        }
+        
+        .step.active {
+            background: linear-gradient(135deg, #FF1493, #9932CC);
+            color: white;
+        }
+        
+        .step.done {
+            background: #00cc6a;
+            color: white;
         }
     </style>
 </head>
 <body>
+    <!-- Burbujas de fondo -->
+    <div class="bubbles">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+    
     <div class="container">
-        <div class="logo">
-            <h1>📱 Mis Anuncios</h1>
-            <p>MegaPersonals - Panel de Control</p>
-        </div>
-        
-        <div id="clientName" class="client-name">Cargando...</div>
-        
-        <div id="adsCount" class="ads-count"></div>
-        
-        <div id="errorMessage" class="error-message" style="display: none;">
-            ⚠️ Link inválido o cliente no encontrado
-        </div>
-        
-        <div id="adsContainer">
-            <!-- Los anuncios se cargan aquí -->
-        </div>
-        
-        <div class="footer">
-            <div>
-                <span class="refresh-indicator"></span>
-                Actualización automática cada segundo
+        <!-- Header -->
+        <div class="header">
+            <div class="header-image">
+                <div class="header-glow"></div>
+                <svg viewBox="0 0 100 100" fill="white">
+                    <ellipse cx="50" cy="25" rx="18" ry="20"/>
+                    <path d="M50 45 C25 45 15 70 15 95 L85 95 C85 70 75 45 50 45"/>
+                    <ellipse cx="50" cy="22" rx="14" ry="16" fill="rgba(255,255,255,0.3)"/>
+                </svg>
             </div>
-            <div style="margin-top: 10px; opacity: 0.8;">
-                💡 Guarda este link para controlar tus anuncios
+            <h1>Mi Panel de Anuncios</h1>
+            <p class="subtitle">Control total de tu publicidad</p>
+        </div>
+        
+        <!-- Info del cliente -->
+        <div class="client-info">
+            <div class="client-name" id="clientName">Cargando...</div>
+            <div class="client-stats" id="adsCount">-- anuncio(s)</div>
+        </div>
+        
+        <!-- Contenedor de anuncios -->
+        <div id="adsContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p style="color: #DA70D6;">Cargando tus anuncios...</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            Powered by <a href="#">BotRedd</a> 🤖
+        </div>
+    </div>
+    
+    <!-- Modal para editar -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            
+            <!-- Paso 1: Formulario de edición -->
+            <div id="editStep1">
+                <h3>✏️ Editar Anuncio</h3>
+                
+                <div class="steps">
+                    <div class="step active">1</div>
+                    <div class="step">2</div>
+                    <div class="step">3</div>
+                </div>
+                
+                <input type="hidden" id="editAdId">
+                
+                <div class="form-group">
+                    <label>👤 Nombre / Alias</label>
+                    <input type="text" id="editName" placeholder="Ej: Maria">
+                </div>
+                
+                <div class="form-group">
+                    <label>💬 Título (Headline)</label>
+                    <input type="text" id="editHeadline" placeholder="Ej: Llamame para disfrutar...">
+                </div>
+                
+                <div class="form-group">
+                    <label>📝 Descripción (Body)</label>
+                    <textarea id="editBody" placeholder="Descripción de tu anuncio..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>🏙️ Ciudad (City)</label>
+                    <input type="text" id="editCity" placeholder="Ej: Miami, FL">
+                </div>
+                
+                <div class="form-group">
+                    <label>📍 Ubicación (Location/Area)</label>
+                    <input type="text" id="editLocation" placeholder="Ej: Downtown Miami">
+                </div>
+                
+                <button class="modal-btn" onclick="submitEditRequest()">
+                    📤 Enviar Solicitud de Edición
+                </button>
+            </div>
+            
+            <!-- Paso 2: Esperando captcha -->
+            <div id="editStep2" style="display: none;">
+                <h3>🔐 Verificación de Seguridad</h3>
+                
+                <div class="steps">
+                    <div class="step done">✓</div>
+                    <div class="step active">2</div>
+                    <div class="step">3</div>
+                </div>
+                
+                <div id="captchaWaiting" class="captcha-waiting">
+                    <div class="spinner"></div>
+                    <p>Esperando código de verificación...</p>
+                    <p style="font-size: 0.8em; color: #999; margin-top: 10px;">
+                        El sistema está procesando tu solicitud.<br>
+                        El código aparecerá en unos segundos.
+                    </p>
+                </div>
+                
+                <div id="captchaReady" class="captcha-section" style="display: none;">
+                    <h4>Escribe el código que ves en la imagen:</h4>
+                    <img id="captchaImage" class="captcha-image" src="" alt="Captcha">
+                    <input type="text" id="captchaInput" class="form-group captcha-input" placeholder="Escribe el código aquí">
+                    <button class="modal-btn" onclick="submitCaptcha()">
+                        ✅ Confirmar Código
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Paso 3: Resultado -->
+            <div id="editStep3" style="display: none;">
+                <h3 id="resultTitle">⏳ Procesando...</h3>
+                
+                <div class="steps">
+                    <div class="step done">✓</div>
+                    <div class="step done">✓</div>
+                    <div class="step active">3</div>
+                </div>
+                
+                <div id="editResult" class="edit-status">
+                    <div class="spinner"></div>
+                    <p>Aplicando cambios a tu anuncio...</p>
+                </div>
+                
+                <button class="modal-btn" id="closeResultBtn" onclick="closeEditModal()" style="display: none;">
+                    👍 Entendido
+                </button>
             </div>
         </div>
     </div>
     
     <script>
-        const BUMP_INTERVAL = 15.42;
         const FIREBASE_URL = 'https://ezequielredd-default-rtdb.firebaseio.com';
+        const BUMP_INTERVAL = 15.42;
         
-        // Obtener ID del cliente desde la URL
+        let currentEditAdId = null;
+        let captchaCheckInterval = null;
+        let editStatusCheckInterval = null;
+        
+        // Obtener ID del cliente de la URL
         function getClientId() {
             const params = new URLSearchParams(window.location.search);
             return params.get('client');
         }
         
-        // Obtener anuncios del cliente desde Firebase
+        // Mostrar error
+        function showError() {
+            document.querySelector('.container').innerHTML = `
+                <div class="error-container">
+                    <div class="error-icon">😕</div>
+                    <h2>Link inválido</h2>
+                    <p style="color: #999;">Este enlace no es válido o ha expirado.<br>Contacta al administrador.</p>
+                </div>
+            `;
+        }
+        
+        // Obtener anuncios del cliente
         async function getClientAds() {
             const clientId = getClientId();
-            if (!clientId) {
-                showError();
-                return null;
-            }
+            if (!clientId) return null;
             
             try {
-                // Obtener info del cliente
-                const clientResponse = await fetch(`${FIREBASE_URL}/clientsInfo/${clientId}.json`);
-                const clientInfo = await clientResponse.json();
+                const clientInfoRes = await fetch(`${FIREBASE_URL}/clientsInfo/${clientId}.json`);
+                const clientInfo = await clientInfoRes.json();
                 
-                if (!clientInfo) {
-                    showError();
-                    return null;
-                }
+                if (!clientInfo) return null;
                 
-                // Obtener todos los anuncios del cliente
-                const adsResponse = await fetch(`${FIREBASE_URL}/clients.json`);
-                const allAds = await adsResponse.json();
+                const adsRes = await fetch(`${FIREBASE_URL}/clients.json`);
+                const allAds = await adsRes.json();
                 
-                // Filtrar anuncios de este cliente
-                const clientAds = [];
-                if (allAds) {
-                    for (const [adId, ad] of Object.entries(allAds)) {
-                        if (ad.clientId === clientId) {
-                            clientAds.push({ id: adId, ...ad });
-                        }
-                    }
-                }
+                if (!allAds) return { clientInfo, ads: [] };
+                
+                const clientAds = Object.entries(allAds)
+                    .filter(([id, ad]) => ad.clientId === clientId)
+                    .map(([id, ad]) => ({ id, ...ad }));
                 
                 return { clientInfo, ads: clientAds };
             } catch (error) {
-                console.error('Error al obtener datos:', error);
-                showError();
+                console.error('Error:', error);
                 return null;
             }
-        }
-        
-        // Mostrar error
-        function showError() {
-            document.getElementById('errorMessage').style.display = 'block';
-            document.getElementById('adsContainer').innerHTML = '';
-            document.getElementById('clientName').style.display = 'none';
-            document.getElementById('adsCount').style.display = 'none';
         }
         
         // Pausar anuncio
@@ -396,7 +874,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(false)
                 });
-                // Forzar actualización inmediata
                 cachedData = null;
                 updateDashboard();
             } catch (error) {
@@ -417,7 +894,6 @@
                         lastSync: now
                     })
                 });
-                // Forzar actualización inmediata
                 cachedData = null;
                 updateDashboard();
             } catch (error) {
@@ -425,24 +901,233 @@
             }
         }
         
-        // Renderizar un anuncio
+        // Abrir modal de edición
+        async function openEditModal(adId) {
+            currentEditAdId = adId;
+            
+            // Obtener datos actuales del anuncio
+            try {
+                const res = await fetch(`${FIREBASE_URL}/clients/${adId}.json`);
+                const ad = await res.json();
+                
+                document.getElementById('editAdId').value = adId;
+                document.getElementById('editName').value = ad.adName || '';
+                document.getElementById('editHeadline').value = ad.adHeadline || '';
+                document.getElementById('editBody').value = ad.adBody || '';
+                document.getElementById('editCity').value = ad.city || '';
+                document.getElementById('editLocation').value = ad.adLocation || '';
+                
+                // Mostrar paso 1
+                document.getElementById('editStep1').style.display = 'block';
+                document.getElementById('editStep2').style.display = 'none';
+                document.getElementById('editStep3').style.display = 'none';
+                
+                document.getElementById('editModal').classList.add('active');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del anuncio');
+            }
+        }
+        
+        // Cerrar modal
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            if (captchaCheckInterval) clearInterval(captchaCheckInterval);
+            if (editStatusCheckInterval) clearInterval(editStatusCheckInterval);
+            currentEditAdId = null;
+            cachedData = null;
+            updateDashboard();
+        }
+        
+        // Enviar solicitud de edición
+        async function submitEditRequest() {
+            const adId = document.getElementById('editAdId').value;
+            
+            const editData = {
+                adName: document.getElementById('editName').value.trim(),
+                adHeadline: document.getElementById('editHeadline').value.trim(),
+                adBody: document.getElementById('editBody').value.trim(),
+                city: document.getElementById('editCity').value.trim(),
+                adLocation: document.getElementById('editLocation').value.trim()
+            };
+            
+            try {
+                // Crear solicitud de edición en Firebase
+                await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...editData,
+                        status: 'pending',
+                        requestedAt: Date.now(),
+                        captchaImage: null,
+                        captchaCode: null
+                    })
+                });
+                
+                // Pasar al paso 2
+                document.getElementById('editStep1').style.display = 'none';
+                document.getElementById('editStep2').style.display = 'block';
+                document.getElementById('captchaWaiting').style.display = 'block';
+                document.getElementById('captchaReady').style.display = 'none';
+                
+                // Empezar a verificar si llegó el captcha
+                startCaptchaCheck(adId);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al enviar la solicitud. Intenta de nuevo.');
+            }
+        }
+        
+        // Verificar si llegó el captcha
+        function startCaptchaCheck(adId) {
+            captchaCheckInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`);
+                    const data = await res.json();
+                    
+                    if (data && data.captchaImage) {
+                        clearInterval(captchaCheckInterval);
+                        
+                        // Mostrar captcha
+                        document.getElementById('captchaWaiting').style.display = 'none';
+                        document.getElementById('captchaReady').style.display = 'block';
+                        document.getElementById('captchaImage').src = data.captchaImage;
+                        document.getElementById('captchaInput').value = '';
+                        document.getElementById('captchaInput').focus();
+                    }
+                    
+                    // Si el status cambió a error
+                    if (data && data.status === 'error') {
+                        clearInterval(captchaCheckInterval);
+                        showEditResult(false, data.errorMessage || 'Error al procesar la edición');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error checking captcha:', error);
+                }
+            }, 2000);
+        }
+        
+        // Enviar código del captcha
+        async function submitCaptcha() {
+            const adId = document.getElementById('editAdId').value;
+            const captchaCode = document.getElementById('captchaInput').value.trim();
+            
+            if (!captchaCode) {
+                alert('Por favor escribe el código');
+                return;
+            }
+            
+            try {
+                // Enviar código a Firebase
+                await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        captchaCode: captchaCode,
+                        status: 'captcha_received'
+                    })
+                });
+                
+                // Pasar al paso 3
+                document.getElementById('editStep2').style.display = 'none';
+                document.getElementById('editStep3').style.display = 'block';
+                document.getElementById('resultTitle').textContent = '⏳ Procesando...';
+                document.getElementById('editResult').innerHTML = `
+                    <div class="spinner"></div>
+                    <p>Aplicando cambios a tu anuncio...</p>
+                    <p style="font-size: 0.8em; color: #999; margin-top: 10px;">
+                        Esto puede tardar unos segundos.
+                    </p>
+                `;
+                document.getElementById('editResult').className = 'edit-status';
+                document.getElementById('closeResultBtn').style.display = 'none';
+                
+                // Verificar resultado
+                startEditStatusCheck(adId);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al enviar el código. Intenta de nuevo.');
+            }
+        }
+        
+        // Verificar estado de la edición
+        function startEditStatusCheck(adId) {
+            editStatusCheckInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`);
+                    const data = await res.json();
+                    
+                    if (data && data.status === 'completed') {
+                        clearInterval(editStatusCheckInterval);
+                        showEditResult(true, '¡Tu anuncio ha sido actualizado correctamente!');
+                        
+                        // Limpiar solicitud después de 5 segundos
+                        setTimeout(async () => {
+                            await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, { method: 'DELETE' });
+                        }, 5000);
+                    }
+                    
+                    if (data && data.status === 'error') {
+                        clearInterval(editStatusCheckInterval);
+                        showEditResult(false, data.errorMessage || 'Error al actualizar el anuncio');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error checking status:', error);
+                }
+            }, 2000);
+        }
+        
+        // Mostrar resultado
+        function showEditResult(success, message) {
+            const resultDiv = document.getElementById('editResult');
+            const resultTitle = document.getElementById('resultTitle');
+            
+            if (success) {
+                resultTitle.textContent = '✅ ¡Completado!';
+                resultDiv.className = 'edit-status success';
+                resultDiv.innerHTML = `
+                    <h4 style="color: #00ff88;">✅ ¡Éxito!</h4>
+                    <p>${message}</p>
+                `;
+            } else {
+                resultTitle.textContent = '❌ Error';
+                resultDiv.className = 'edit-status error';
+                resultDiv.innerHTML = `
+                    <h4 style="color: #ff6b6b;">❌ Error</h4>
+                    <p>${message}</p>
+                `;
+            }
+            
+            document.getElementById('closeResultBtn').style.display = 'block';
+        }
+        
+        // Renderizar anuncio
         function renderAd(ad) {
             const now = Date.now();
             const endTime = ad.startTime + (ad.duration * 60 * 1000);
             const isExpired = now >= endTime;
             const isActive = ad.active && !isExpired;
+            const isEditing = ad.editStatus === 'editing';
             
             // Estado
             let statusClass, statusText;
-            if (isExpired) {
+            if (isEditing) {
+                statusClass = 'status-editing';
+                statusText = 'Editando...';
+            } else if (isExpired) {
                 statusClass = 'status-expired';
-                statusText = '⏹️ Finalizado';
+                statusText = 'Finalizado';
             } else if (isActive) {
                 statusClass = 'status-active';
-                statusText = '🟢 Activo';
+                statusText = 'Activo';
             } else {
                 statusClass = 'status-paused';
-                statusText = '⏸️ Pausado';
+                statusText = 'Pausado';
             }
             
             // Próximo bump
@@ -450,7 +1135,7 @@
             const bumpMinutes = Math.floor(timeToNextBump / 60000);
             const bumpSeconds = Math.floor((timeToNextBump % 60000) / 1000);
             const nextBumpStr = isExpired ? '--:--' : 
-                (timeToNextBump > 0 ? `${String(bumpMinutes).padStart(2, '0')}:${String(bumpSeconds).padStart(2, '0')}` : 'Procesando...');
+                `${String(bumpMinutes).padStart(2, '0')}:${String(bumpSeconds).padStart(2, '0')}`;
             
             // Tiempo restante
             const remaining = Math.max(0, endTime - now);
@@ -468,14 +1153,12 @@
                 remainingStr = `${hours}h ${minutes}m ${seconds}s`;
             }
             
-            // Progreso del bump
+            // Progreso
             const bumpTotal = BUMP_INTERVAL * 60 * 1000;
-            const bumpProgress = isExpired ? 100 : Math.min(100, Math.max(0, ((bumpTotal - timeToNextBump) / bumpTotal) * 100));
-            
-            // Progreso total
+            const bumpProgress = isExpired ? 100 : Math.min(100, ((bumpTotal - timeToNextBump) / bumpTotal) * 100);
             const totalProgress = Math.min(100, ((now - ad.startTime) / (ad.duration * 60 * 1000)) * 100);
             
-            // Fecha de finalización
+            // Fecha fin
             const endDateStr = new Date(endTime).toLocaleString('es-ES', {
                 weekday: 'short',
                 month: 'short',
@@ -488,21 +1171,26 @@
             const bumpsRemaining = isExpired ? 0 : Math.floor(remaining / (BUMP_INTERVAL * 60 * 1000));
             
             // Botones
-            let buttonsHtml;
+            let actionBtn;
             if (isExpired) {
-                buttonsHtml = `<button class="btn" disabled style="background: #ccc; color: #666;">Servicio Finalizado</button>`;
+                actionBtn = `<button class="btn btn-disabled btn-full" disabled>Servicio Finalizado</button>`;
+            } else if (isEditing) {
+                actionBtn = `<button class="btn btn-disabled" disabled>⏳ Editando...</button>`;
             } else if (isActive) {
-                buttonsHtml = `<button class="btn btn-pause" onclick="pauseAd('${ad.id}')">⏸️ Pausar Anuncio</button>`;
+                actionBtn = `<button class="btn btn-pause" onclick="pauseAd('${ad.id}')">⏸️ Pausar</button>`;
             } else {
-                buttonsHtml = `<button class="btn btn-resume" onclick="resumeAd('${ad.id}')">▶️ Reanudar Anuncio</button>`;
+                actionBtn = `<button class="btn btn-resume" onclick="resumeAd('${ad.id}')">▶️ Reanudar</button>`;
             }
+            
+            const editBtn = isExpired || isEditing ? '' : 
+                `<button class="btn btn-edit" onclick="openEditModal('${ad.id}')">✏️ Editar</button>`;
             
             return `
                 <div class="ad-card">
                     <div class="ad-header">
                         <div>
-                            <div class="ad-title">📞 ${ad.phone || 'Sin teléfono'}</div>
-                            <div class="ad-browser">📍 ${ad.city || 'Sin ciudad'} • ${ad.browser || 'Sin navegador'}</div>
+                            <div class="ad-phone">📞 ${ad.phone || 'Sin teléfono'}</div>
+                            <div class="ad-city">📍 ${ad.city || 'Sin ciudad'}</div>
                         </div>
                         <div class="status-badge ${statusClass}">
                             <div class="status-dot"></div>
@@ -510,7 +1198,7 @@
                         </div>
                     </div>
                     
-                    <div class="ad-stats">
+                    <div class="stats-grid">
                         <div class="stat-box">
                             <div class="stat-label">⏰ Próxima Publicación</div>
                             <div class="stat-value time">${nextBumpStr}</div>
@@ -520,46 +1208,44 @@
                         </div>
                         <div class="stat-box">
                             <div class="stat-label">⏳ Tiempo Restante</div>
-                            <div class="stat-value time">${remainingStr}</div>
+                            <div class="stat-value time" style="font-size: ${days > 0 ? '1.1em' : '1.5em'}">${remainingStr}</div>
                             <div class="progress-container">
-                                <div class="progress-bar" style="width: ${totalProgress}%; background: linear-gradient(90deg, #ff9500, #ff6b00);"></div>
+                                <div class="progress-bar" style="width: ${totalProgress}%; background: linear-gradient(90deg, #00ff88, #00cc6a);"></div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="ad-details">
-                        <div class="detail-item">
-                            <span class="detail-label">📅 Finaliza:</span>
+                        <div class="detail-row">
+                            <span class="detail-label">📅 Finaliza</span>
                             <span class="detail-value">${endDateStr}</span>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">🔄 Bumps restantes:</span>
+                        <div class="detail-row">
+                            <span class="detail-label">🔄 Publicaciones restantes</span>
                             <span class="detail-value">${bumpsRemaining}</span>
                         </div>
                     </div>
                     
-                    <div class="ad-controls">
-                        ${buttonsHtml}
+                    <div class="btn-group">
+                        ${actionBtn}
+                        ${editBtn}
                     </div>
                 </div>
             `;
         }
         
-        // Variables globales para cache de datos
+        // Variables de cache
         let cachedData = null;
         let lastFetchTime = 0;
-        const FETCH_INTERVAL = 5000; // Consultar Firebase cada 5 segundos
+        const FETCH_INTERVAL = 5000;
         
-        // Obtener datos (con cache)
+        // Obtener datos con cache
         async function getDataWithCache() {
             const now = Date.now();
-            
-            // Si pasaron más de 5 segundos, actualizar desde Firebase
             if (!cachedData || (now - lastFetchTime) > FETCH_INTERVAL) {
                 cachedData = await getClientAds();
                 lastFetchTime = now;
             }
-            
             return cachedData;
         }
         
@@ -568,17 +1254,14 @@
             const data = await getDataWithCache();
             if (!data) return;
             
-            // Mostrar nombre del cliente
             document.getElementById('clientName').textContent = `👤 ${data.clientInfo.name}`;
             
-            // Mostrar cantidad de anuncios
             const activeAds = data.ads.filter(ad => {
                 const endTime = ad.startTime + (ad.duration * 60 * 1000);
                 return Date.now() < endTime;
             }).length;
             document.getElementById('adsCount').textContent = `${data.ads.length} anuncio(s) • ${activeAds} activo(s)`;
             
-            // Renderizar anuncios
             const container = document.getElementById('adsContainer');
             
             if (data.ads.length === 0) {
@@ -592,7 +1275,7 @@
                 return;
             }
             
-            // Ordenar: activos primero, luego pausados, luego expirados
+            // Ordenar: activos primero
             data.ads.sort((a, b) => {
                 const now = Date.now();
                 const aEnd = a.startTime + (a.duration * 60 * 1000);
@@ -608,20 +1291,21 @@
             container.innerHTML = data.ads.map(ad => renderAd(ad)).join('');
         }
         
-        // Forzar actualización desde Firebase (después de pausar/reanudar)
-        async function forceUpdate() {
-            cachedData = null;
-            await updateDashboard();
-        }
-        
         // Inicializar
         const clientId = getClientId();
         if (!clientId) {
             showError();
         } else {
             updateDashboard();
-            setInterval(updateDashboard, 1000); // Actualizar contador cada segundo
+            setInterval(updateDashboard, 1000);
         }
+        
+        // Cerrar modal al hacer click fuera
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('editModal')) {
+                closeEditModal();
+            }
+        });
     </script>
 </body>
 </html>
