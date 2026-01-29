@@ -1518,7 +1518,7 @@
             if (isExpired) {
                 actionBtn = `<button class="btn btn-disabled btn-full" disabled>Servicio Finalizado</button>`;
             } else if (isEditing) {
-                actionBtn = `<button class="btn btn-disabled" disabled>⏳ Editando...</button>`;
+                actionBtn = `<button class="btn btn-disabled" onclick="cancelEdit('${ad.id}')" style="cursor: pointer;">⏳ Editando... (click para cancelar)</button>`;
             } else if (isActive) {
                 actionBtn = `<button class="btn btn-pause" onclick="pauseAd('${ad.id}')">⏸️ Pausar</button>`;
             } else {
@@ -1639,12 +1639,71 @@
         if (!clientId) {
             showError();
         } else {
+            // Limpiar ediciones colgadas al cargar la página
+            cleanupStuckEdits();
+            
             updateDashboard();
             setInterval(updateDashboard, 1000);
             
             // Verificar si hay una edición en progreso con captcha
             checkPendingEdits();
             setInterval(checkPendingEdits, 3000);
+        }
+        
+        // Limpiar ediciones que quedaron colgadas (más de 5 minutos)
+        async function cleanupStuckEdits() {
+            try {
+                const data = await getClientAds();
+                if (!data || !data.ads) return;
+                
+                for (const ad of data.ads) {
+                    // Si tiene editStatus = editing
+                    if (ad.editStatus === 'editing') {
+                        // Verificar si hay una solicitud de edición activa
+                        const res = await fetch(`${FIREBASE_URL}/editRequests/${ad.id}.json`);
+                        const editRequest = await res.json();
+                        
+                        // Si no hay solicitud o pasaron más de 5 minutos, limpiar
+                        const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+                        
+                        if (!editRequest || !editRequest.requestedAt || editRequest.requestedAt < fiveMinutesAgo) {
+                            console.log('🧹 Limpiando edición colgada para:', ad.id);
+                            
+                            await fetch(`${FIREBASE_URL}/clients/${ad.id}.json`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ editStatus: null })
+                            });
+                            
+                            if (editRequest) {
+                                await fetch(`${FIREBASE_URL}/editRequests/${ad.id}.json`, { method: 'DELETE' });
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error limpiando ediciones colgadas:', error);
+            }
+        }
+        
+        // Cancelar edición manualmente
+        async function cancelEdit(adId) {
+            if (!confirm('¿Cancelar la edición en progreso?')) return;
+            
+            try {
+                await fetch(`${FIREBASE_URL}/clients/${adId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ editStatus: null })
+                });
+                await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, { method: 'DELETE' });
+                
+                cachedData = null;
+                updateDashboard();
+                console.log('✅ Edición cancelada');
+            } catch (error) {
+                console.error('Error cancelando edición:', error);
+            }
         }
         
         // Verificar si hay ediciones pendientes con captcha
