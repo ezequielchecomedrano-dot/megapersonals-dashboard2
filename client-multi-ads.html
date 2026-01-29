@@ -1266,8 +1266,13 @@
         
         // Verificar estado de la edición
         function startEditStatusCheck(adId) {
+            let checkCount = 0;
+            const maxChecks = 10; // 10 * 2 segundos = 20 segundos máximo
+            
             editStatusCheckInterval = setInterval(async () => {
                 try {
+                    checkCount++;
+                    
                     const res = await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`);
                     const data = await res.json();
                     
@@ -1279,17 +1284,70 @@
                         setTimeout(async () => {
                             await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, { method: 'DELETE' });
                         }, 5000);
+                        return;
                     }
                     
                     if (data && data.status === 'error') {
                         clearInterval(editStatusCheckInterval);
                         showEditResult(false, data.errorMessage || 'Error al actualizar el anuncio');
+                        return;
+                    }
+                    
+                    // Si pasó mucho tiempo (60 segundos), mostrar opción de reintentar
+                    if (checkCount >= maxChecks) {
+                        clearInterval(editStatusCheckInterval);
+                        showEditResultWithRetry(adId);
                     }
                     
                 } catch (error) {
                     console.error('Error checking status:', error);
                 }
             }, 2000);
+        }
+        
+        // Mostrar resultado con opción de reintentar
+        function showEditResultWithRetry(adId) {
+            const resultDiv = document.getElementById('editResult');
+            const resultTitle = document.getElementById('resultTitle');
+            
+            resultTitle.textContent = '⚠️ Tiempo agotado';
+            resultDiv.className = 'edit-status error';
+            resultDiv.innerHTML = `
+                <p>El proceso está tardando más de lo esperado.</p>
+                <p style="font-size: 0.9em; color: #ccc; margin-top: 10px;">
+                    Posibles causas:<br>
+                    • El código del captcha fue incorrecto<br>
+                    • Hubo un problema de conexión
+                </p>
+                <button class="modal-btn" onclick="retryFromResult('${adId}')" style="margin-top: 15px; background: #ff6b6b;">
+                    🔄 Reintentar Edición
+                </button>
+                <button class="modal-btn" onclick="closeEditModal()" style="margin-top: 10px; background: #666;">
+                    ❌ Cerrar
+                </button>
+            `;
+        }
+        
+        // Reintentar desde el resultado
+        async function retryFromResult(adId) {
+            try {
+                // Limpiar la solicitud de edición actual
+                await fetch(`${FIREBASE_URL}/editRequests/${adId}.json`, { method: 'DELETE' });
+                
+                // Quitar estado de editando
+                await fetch(`${FIREBASE_URL}/clients/${adId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ editStatus: null })
+                });
+                
+                // Cerrar modal y refrescar
+                closeEditModal();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al reintentar. Recarga la página.');
+            }
         }
         
         // Mostrar resultado
